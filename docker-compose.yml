@@ -1,0 +1,33 @@
+﻿services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: dnd_user
+      POSTGRES_PASSWORD: dnd_pass
+      POSTGRES_DB: dnd_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://dnd_user:dnd_pass@db:5432/dnd_db
+      JWT_SECRET_KEY: super-secret-key-change-me
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
